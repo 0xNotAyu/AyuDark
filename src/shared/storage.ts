@@ -1,15 +1,15 @@
-import { Mode, ThemeId, ThemeVars, DEFAULT_CUSTOM_THEME } from "./themes";
+import { Mode, ThemeId, CustomSeed, DEFAULT_CUSTOM_SEED } from "./themes";
 
 export interface Settings {
   mode: Mode;
   themeId: ThemeId;
-  customTheme: ThemeVars;
+  customSeed: CustomSeed;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
   mode: "system",
   themeId: "darkGray",
-  customTheme: DEFAULT_CUSTOM_THEME,
+  customSeed: DEFAULT_CUSTOM_SEED,
 };
 
 const STORAGE_KEY = "ayudark_settings";

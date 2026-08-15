@@ -11,8 +11,9 @@
     "watch": "npm run build -- --watch"
   },
   "devDependencies": {
+    "@types/chrome": "^0.0.269",
     "esbuild": "^0.23.0",
-    "typescript": "^5.5.4",
-    "@types/chrome": "^0.0.269"
+    "jsdom": "^30.0.1",
+    "typescript": "^5.5.4"
   }
 }

@@ -1,4 +1,4 @@
-import { Mode, ThemeId, DEFAULT_CUSTOM_THEME } from "../shared/themes";
+import { Mode, ThemeId, DEFAULT_CUSTOM_SEED } from "../shared/themes";
 import { getSettings, setSettings, Settings } from "../shared/storage";
 
 function $(selector: string): HTMLElement {
@@ -26,9 +26,9 @@ function renderTheme(themeId: ThemeId) {
 }
 
 function renderCustomColors(settings: Settings) {
-  (document.getElementById("custom-bg") as HTMLInputElement).value = settings.customTheme.bg;
-  (document.getElementById("custom-text") as HTMLInputElement).value = settings.customTheme.text;
-  (document.getElementById("custom-accent") as HTMLInputElement).value = settings.customTheme.accent;
+  (document.getElementById("custom-bg") as HTMLInputElement).value = settings.customSeed.bg;
+  (document.getElementById("custom-text") as HTMLInputElement).value = settings.customSeed.text;
+  (document.getElementById("custom-accent") as HTMLInputElement).value = settings.customSeed.accent;
 }
 
 async function init() {
@@ -58,13 +58,13 @@ async function init() {
   customInputs.forEach((id) => {
     document.getElementById(id)!.addEventListener("input", async (e) => {
       const value = (e.target as HTMLInputElement).value;
-      settings.customTheme = { ...settings.customTheme, [keyMap[id]]: value };
+      settings.customSeed = { ...settings.customSeed, [keyMap[id]]: value };
       await setSettings(settings);
     });
   });
 
   document.getElementById("reset-custom")!.addEventListener("click", async () => {
-    settings.customTheme = { ...DEFAULT_CUSTOM_THEME };
+    settings.customSeed = { ...DEFAULT_CUSTOM_SEED };
     renderCustomColors(settings);
     await setSettings(settings);
   });

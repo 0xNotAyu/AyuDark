@@ -1,4 +1,4 @@
-import { BUILTIN_THEMES, themeToCssVars, ThemeVars } from "../shared/themes";
+import { BUILTIN_TOKEN_THEMES, deriveTokensFromSeed, tokensToCssVars, MediumTokens } from "../shared/themes";
 import { getSettings, onSettingsChanged, Settings } from "../shared/storage";
 
 const STYLE_ID = "ayudark-style";
@@ -7,58 +7,24 @@ const BOOT_STYLE_ID = "ayudark-boot"; // tiny blocking style injected before any
 /**
  * Injected the instant the script runs (document_start), before Medium's own
  * stylesheets paint. Just enough to stop a flash of white while we resolve
- * settings + theme below.
+ * settings + tokens below.
  */
 function injectBootStyle() {
   if (document.getElementById(BOOT_STYLE_ID)) return;
   const style = document.createElement("style");
   style.id = BOOT_STYLE_ID;
-  style.textContent = `html { background: #1a1a1a !important; }`;
+  style.textContent = `html { background: #141414 !important; }`;
   document.documentElement.appendChild(style);
 }
 
-function resolveThemeVars(settings: Settings): ThemeVars {
-  return settings.themeId === "custom" ? settings.customTheme : BUILTIN_THEMES[settings.themeId];
+function resolveTokens(settings: Settings): MediumTokens {
+  return settings.themeId === "custom"
+    ? deriveTokensFromSeed(settings.customSeed)
+    : BUILTIN_TOKEN_THEMES[settings.themeId];
 }
 
 function systemPrefersDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-/**
- * Medium's DOM uses hashed/generated class names that change on every deploy,
- * so hand-mapped class selectors would break constantly. Instead we classify
- * the current page by its URL shape and expose it as a data attribute, so CSS
- * can target route-specific quirks (editor toolbar, settings forms, etc.)
- * using structure/semantics rather than brittle class names.
- */
-type Route =
-  | "feed"
-  | "article"
-  | "editor"
-  | "profile"
-  | "settings"
-  | "notifications"
-  | "stats"
-  | "search"
-  | "list"
-  | "other";
-
-function detectRoute(pathname: string): Route {
-  if (/^\/(new-story|p\/[\w-]+\/edit|edit)/.test(pathname)) return "editor";
-  if (/^\/me\/settings/.test(pathname)) return "settings";
-  if (/^\/me\/notifications/.test(pathname)) return "notifications";
-  if (/^\/me\/stats/.test(pathname)) return "stats";
-  if (/^\/search/.test(pathname)) return "search";
-  if (/^\/@[^/]+\/list\//.test(pathname)) return "list";
-  if (/^\/@[^/]+\/?$/.test(pathname)) return "profile";
-  if (/^\/@[^/]+\/[\w-]+/.test(pathname) || /-[0-9a-f]{6,}$/.test(pathname)) return "article";
-  if (pathname === "/" || pathname === "") return "feed";
-  return "other";
-}
-
-function applyRouteAttribute() {
-  document.documentElement.setAttribute("data-ayudark-route", detectRoute(location.pathname));
 }
 
 function isDarkActive(settings: Settings): boolean {
@@ -68,110 +34,56 @@ function isDarkActive(settings: Settings): boolean {
 }
 
 /**
- * Full theme layer. Uses an invert+hue-rotate base so every route is covered
- * even where we haven't hand-mapped Medium's DOM (profile, settings, editor,
- * stats, etc.), then un-inverts media so photos/avatars/embeds look normal,
- * then layers the chosen palette on top for backgrounds/text/links/accent.
+ * Medium's own stylesheet defines ~27 --color-* custom properties on :root
+ * (see lite-color-scheme-tokens) and almost every component reads its
+ * colors from them (backgrounds, text, borders, placeholders, hover states).
+ * Redefining those tokens re-themes the real site instead of faking it with
+ * a pixel-level filter — real colors stay real colors, photos stay
+ * untouched, and native form controls pick up `color-scheme: dark`
+ * automatically.
+ *
+ * A handful of things are NOT token-driven and need direct patches:
+ * - <body> has a hardcoded `color: rgba(0,0,0,0.8)` in Medium's static CSS
+ * - the Medium wordmark logo SVG has a hardcoded `fill="#242424"`
+ * - some icon SVGs (e.g. the "add to list" bookmark icon) hardcode
+ *   `fill="black"`/`fill="#000000"` as a placeholder meant to match body
+ *   text, rather than reading a token — these go invisible on a dark page
+ *   unless remapped. (White fills are left alone: those sit on top of
+ *   colored badges like the verified checkmark, not the page background,
+ *   so they should stay white regardless of theme.)
  */
-function buildStylesheet(vars: ThemeVars): string {
-  const cssVars = themeToCssVars(vars);
+function buildStylesheet(tokens: MediumTokens): string {
+  const vars = tokensToCssVars(tokens);
   return `
     :root {
-      ${cssVars}
+      ${vars}
+      color-scheme: dark;
     }
 
-    html {
-      background: var(--ayudark-bg) !important;
-      filter: invert(1) hue-rotate(180deg) contrast(0.92) !important;
-    }
-
-    /* Un-invert anything that should keep its true colors: photos, avatars,
-       embeds, canvases, and native form controls (which the invert filter
-       renders illegibly). Form controls get explicit theme colors below
-       instead of relying on the invert trick. */
-    img, picture, video, svg, canvas, iframe,
-    [style*="background-image"],
-    [role="img"],
-    input, textarea, select, button {
-      filter: invert(1) hue-rotate(180deg) !important;
-    }
-
-    /* Layered palette for elements we DO know about */
     body {
-      background-color: var(--ayudark-bg) !important;
-      color: var(--ayudark-text) !important;
+      color: var(--color-fg-neutral-primary) !important;
     }
-    a { color: var(--ayudark-link) !important; }
-    ::selection { background: var(--ayudark-accent); color: var(--ayudark-bg); }
-    * { scrollbar-color: var(--ayudark-border) var(--ayudark-bg); }
 
-    /* Native form controls: explicit theme instead of the invert trick,
-       since inverted checkboxes/selects/date pickers render illegibly */
-    input, textarea, select, button {
-      background-color: var(--ayudark-bg-elevated) !important;
-      color: var(--ayudark-text) !important;
-      border-color: var(--ayudark-border) !important;
+    a[data-testid="headerMediumLogo"] path {
+      fill: var(--color-fg-neutral-primary) !important;
     }
-    input::placeholder, textarea::placeholder {
-      color: var(--ayudark-text-muted) !important;
-      opacity: 1 !important;
+
+    path[fill="black"], path[fill="#000"], path[fill="#000000"] {
+      fill: var(--color-fg-neutral-primary) !important;
     }
-    button {
-      cursor: pointer;
+
+    ::selection {
+      background: var(--color-fg-accent-primary);
+      color: var(--color-bg-neutral-primary);
     }
-    button:hover {
-      filter: brightness(1.1) !important;
+
+    * {
+      scrollbar-color: var(--color-border-neutral-primary) var(--color-bg-neutral-primary);
     }
+
     :focus-visible {
-      outline: 2px solid var(--ayudark-accent) !important;
+      outline: 2px solid var(--color-fg-accent-primary) !important;
       outline-offset: 1px;
-    }
-
-    /* Code blocks / inline code: force a legible monospace block regardless
-       of whatever syntax-highlight colors Medium's editor injected inline */
-    pre, code, kbd, samp {
-      background-color: var(--ayudark-bg-elevated) !important;
-      color: var(--ayudark-text) !important;
-      border-color: var(--ayudark-border) !important;
-    }
-
-    /* Editor contenteditable surfaces (new-story / edit views) */
-    [contenteditable="true"] {
-      background-color: var(--ayudark-bg) !important;
-      color: var(--ayudark-text) !important;
-      caret-color: var(--ayudark-accent) !important;
-    }
-
-    /* Sticky/fixed headers and toolbars (feed top bar, editor floating
-       toolbar, profile tabs) — targeted by semantics, not class names */
-    header, nav, [role="banner"], [role="navigation"], [role="toolbar"] {
-      background-color: var(--ayudark-bg-elevated) !important;
-      border-color: var(--ayudark-border) !important;
-    }
-
-    /* Cards / panels / modals / drawers (responses panel, settings sections,
-       dropdown menus) */
-    [role="dialog"], [role="menu"], [role="listbox"], [role="tooltip"],
-    [role="complementary"] {
-      background-color: var(--ayudark-bg-elevated) !important;
-      color: var(--ayudark-text) !important;
-      border-color: var(--ayudark-border) !important;
-    }
-
-    hr { border-color: var(--ayudark-border) !important; }
-
-    /* --- Route-specific nudges --- */
-
-    /* Editor: keep the floating toolbar readable above the invert layer */
-    html[data-ayudark-route="editor"] [role="toolbar"] {
-      background-color: var(--ayudark-bg-elevated) !important;
-    }
-
-    /* Settings: form rows tend to use light card backgrounds Medium-side */
-    html[data-ayudark-route="settings"] section,
-    html[data-ayudark-route="settings"] fieldset {
-      background-color: var(--ayudark-bg) !important;
-      border-color: var(--ayudark-border) !important;
     }
   `.trim();
 }
@@ -185,11 +97,14 @@ function applyTheme(settings: Settings) {
     return;
   }
 
-  const vars = resolveThemeVars(settings);
-  const css = buildStylesheet(vars);
+  const tokens = resolveTokens(settings);
+  const css = buildStylesheet(tokens);
 
   if (existing instanceof HTMLStyleElement) {
     existing.textContent = css;
+    // Re-affirm position as the LAST element in <html> so we win the cascade
+    // even if Medium's SPA re-inserts its own token <style> tag on navigation.
+    document.documentElement.appendChild(existing);
   } else {
     const style = document.createElement("style");
     style.id = STYLE_ID;
@@ -202,10 +117,8 @@ function applyTheme(settings: Settings) {
 /**
  * Medium is a client-routed SPA — navigating between feed/article/profile/
  * settings doesn't reload the page, so a one-shot injection isn't enough.
- * We patch pushState/replaceState + listen for popstate so the theme is
- * re-confirmed on every route change, and watch the DOM for large subtree
- * swaps (infinite scroll, lazy-loaded panels) in case anything needs
- * re-tagging later.
+ * We patch pushState/replaceState + listen for popstate so the theme (and
+ * its position at the end of <html>) is re-confirmed on every route change.
  */
 function watchSpaNavigation(onNavigate: () => void) {
   const wrap = (fn: History["pushState"]) =>
@@ -218,17 +131,10 @@ function watchSpaNavigation(onNavigate: () => void) {
   history.pushState = wrap(history.pushState);
   history.replaceState = wrap(history.replaceState);
   window.addEventListener("popstate", onNavigate);
-
-  const observer = new MutationObserver(() => {
-    // Cheap no-op re-apply hook for M3: route-specific overrides will use this
-    // to re-tag newly mounted subtrees (e.g. lazy-loaded feed cards).
-  });
-  observer.observe(document.documentElement, { childList: true, subtree: true });
 }
 
 async function main() {
   injectBootStyle();
-  applyRouteAttribute();
 
   let settings = await getSettings();
   applyTheme(settings);
@@ -244,11 +150,8 @@ async function main() {
     if (settings.mode === "system") applyTheme(settings);
   });
 
-  // Re-confirm theme + route classification on SPA route changes
-  watchSpaNavigation(() => {
-    applyRouteAttribute();
-    applyTheme(settings);
-  });
+  // Re-confirm theme on SPA route changes
+  watchSpaNavigation(() => applyTheme(settings));
 }
 
 main();
