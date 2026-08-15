@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ayuDark</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup">
+    <header class="popup__header">
+      <span class="popup__logo">ayuDark</span>
+      <span class="popup__tagline">Dark mode for every page of Medium</span>
+    </header>
+
+    <section class="popup__section">
+      <span class="popup__label">Mode</span>
+      <div class="segmented" id="mode-control">
+        <button class="segmented__option" data-mode="system">System</button>
+        <button class="segmented__option" data-mode="off">Off</button>
+        <button class="segmented__option" data-mode="on">On</button>
+      </div>
+    </section>
+
+    <section class="popup__section" id="theme-section">
+      <span class="popup__label">Theme</span>
+      <div class="swatches" id="theme-control">
+        <button class="swatch" data-theme="darkGray">
+          <span class="swatch__preview" data-preview="darkGray"></span>
+          Dark Gray
+        </button>
+        <button class="swatch" data-theme="oledBlack">
+          <span class="swatch__preview" data-preview="oledBlack"></span>
+          OLED Black
+        </button>
+        <button class="swatch" data-theme="claude">
+          <span class="swatch__preview" data-preview="claude"></span>
+          Claude
+        </button>
+        <button class="swatch" data-theme="custom">
+          <span class="swatch__preview" data-preview="custom"></span>
+          Custom
+        </button>
+      </div>
+    </section>
+
+    <section class="popup__section" id="custom-section" hidden>
+      <span class="popup__label">Custom colors</span>
+      <div class="custom-picker">
+        <label>Background <input type="color" id="custom-bg" /></label>
+        <label>Text <input type="color" id="custom-text" /></label>
+        <label>Accent <input type="color" id="custom-accent" /></label>
+      </div>
+      <button class="reset-link" id="reset-custom" type="button">Reset to default</button>
+    </section>
+
+    <footer class="popup__footer">
+      <span class="popup__footer-label">Feedback or need help?</span>
+      <div class="popup__links">
+        <a href="https://github.com/0xNotAyu" target="_blank" rel="noopener noreferrer" title="GitHub">
+          GitHub
+        </a>
+        <a href="https://instagram.com/REPLACE_ME" target="_blank" rel="noopener noreferrer" title="Instagram">
+          Instagram
+        </a>
+      </div>
+      <span class="popup__version">v0.1.0</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

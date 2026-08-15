@@ -1,0 +1,18 @@
+{
+  "name": "ayudark",
+  "version": "0.1.0",
+  "description": "Medium dark mode browser extension",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:content && npm run build:popup && npm run copy:static",
+    "build:content": "esbuild src/content/index.ts --bundle --outfile=dist/content/index.js --target=chrome100",
+    "build:popup": "esbuild src/popup/popup.ts --bundle --outfile=dist/popup/popup.js --target=chrome100",
+    "copy:static": "mkdir -p dist/popup dist/icons && cp manifest.json dist/manifest.json && cp src/popup/popup.html dist/popup/popup.html && cp src/popup/popup.css dist/popup/popup.css && cp -r icons/. dist/icons/ 2>/dev/null || true",
+    "watch": "npm run build -- --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4",
+    "@types/chrome": "^0.0.269"
+  }
+}

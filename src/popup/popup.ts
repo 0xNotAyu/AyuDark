@@ -1,0 +1,73 @@
+import { Mode, ThemeId, DEFAULT_CUSTOM_THEME } from "../shared/themes";
+import { getSettings, setSettings, Settings } from "../shared/storage";
+
+function $(selector: string): HTMLElement {
+  const el = document.querySelector(selector);
+  if (!el) throw new Error(`Missing element: ${selector}`);
+  return el as HTMLElement;
+}
+
+function renderMode(mode: Mode) {
+  document.querySelectorAll<HTMLButtonElement>("#mode-control .segmented__option").forEach((btn) => {
+    const active = btn.dataset.mode === mode;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+  $("#theme-section").toggleAttribute("hidden", mode === "off");
+}
+
+function renderTheme(themeId: ThemeId) {
+  document.querySelectorAll<HTMLButtonElement>("#theme-control .swatch").forEach((btn) => {
+    const active = btn.dataset.theme === themeId;
+    btn.classList.toggle("is-active", active);
+    btn.setAttribute("aria-pressed", String(active));
+  });
+  $("#custom-section").toggleAttribute("hidden", themeId !== "custom");
+}
+
+function renderCustomColors(settings: Settings) {
+  (document.getElementById("custom-bg") as HTMLInputElement).value = settings.customTheme.bg;
+  (document.getElementById("custom-text") as HTMLInputElement).value = settings.customTheme.text;
+  (document.getElementById("custom-accent") as HTMLInputElement).value = settings.customTheme.accent;
+}
+
+async function init() {
+  const settings = await getSettings();
+  renderMode(settings.mode);
+  renderTheme(settings.themeId);
+  renderCustomColors(settings);
+
+  document.querySelectorAll<HTMLButtonElement>("#mode-control .segmented__option").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      settings.mode = btn.dataset.mode as Mode;
+      renderMode(settings.mode);
+      await setSettings(settings);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>("#theme-control .swatch").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      settings.themeId = btn.dataset.theme as ThemeId;
+      renderTheme(settings.themeId);
+      await setSettings(settings);
+    });
+  });
+
+  const customInputs = ["custom-bg", "custom-text", "custom-accent"] as const;
+  const keyMap = { "custom-bg": "bg", "custom-text": "text", "custom-accent": "accent" } as const;
+  customInputs.forEach((id) => {
+    document.getElementById(id)!.addEventListener("input", async (e) => {
+      const value = (e.target as HTMLInputElement).value;
+      settings.customTheme = { ...settings.customTheme, [keyMap[id]]: value };
+      await setSettings(settings);
+    });
+  });
+
+  document.getElementById("reset-custom")!.addEventListener("click", async () => {
+    settings.customTheme = { ...DEFAULT_CUSTOM_THEME };
+    renderCustomColors(settings);
+    await setSettings(settings);
+  });
+}
+
+init();
