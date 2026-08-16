@@ -7,13 +7,14 @@
     "build": "npm run build:content && npm run build:popup && npm run copy:static",
     "build:content": "esbuild src/content/index.ts --bundle --outfile=dist/content/index.js --target=chrome100",
     "build:popup": "esbuild src/popup/popup.ts --bundle --outfile=dist/popup/popup.js --target=chrome100",
-    "copy:static": "mkdir -p dist/popup dist/icons && cp manifest.json dist/manifest.json && cp src/popup/popup.html dist/popup/popup.html && cp src/popup/popup.css dist/popup/popup.css && cp -r icons/. dist/icons/ 2>/dev/null || true",
+    "copy:static": "shx mkdir -p dist/popup dist/icons && shx cp manifest.json dist/manifest.json && shx cp src/popup/popup.html dist/popup/popup.html && shx cp src/popup/popup.css dist/popup/popup.css && shx cp -r icons/. dist/icons",
     "watch": "npm run build -- --watch"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.269",
     "esbuild": "^0.23.0",
     "jsdom": "^30.0.1",
+    "shx": "^0.4.0",
     "typescript": "^5.5.4"
   }
 }
