@@ -2,70 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>ayuDark</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>AyuDark</title>
+
   <link rel="stylesheet" href="popup.css" />
 </head>
+
 <body>
-  <div class="popup">
-    <header class="popup__header">
-      <span class="popup__logo">ayuDark</span>
-      <span class="popup__tagline">Dark mode for every page of Medium</span>
-    </header>
 
-    <section class="popup__section">
-      <span class="popup__label">Mode</span>
-      <div class="segmented" id="mode-control">
-        <button class="segmented__option" data-mode="system">System</button>
-        <button class="segmented__option" data-mode="off">Off</button>
-        <button class="segmented__option" data-mode="on">On</button>
-      </div>
-    </section>
+  <main class="card">
 
-    <section class="popup__section" id="theme-section">
-      <span class="popup__label">Theme</span>
-      <div class="swatches" id="theme-control">
-        <button class="swatch" data-theme="darkGray">
-          <span class="swatch__preview" data-preview="darkGray"></span>
-          Dark Gray
-        </button>
-        <button class="swatch" data-theme="oledBlack">
-          <span class="swatch__preview" data-preview="oledBlack"></span>
-          OLED Black
-        </button>
-        <button class="swatch" data-theme="claude">
-          <span class="swatch__preview" data-preview="claude"></span>
-          Claude
-        </button>
-        <button class="swatch" data-theme="custom">
-          <span class="swatch__preview" data-preview="custom"></span>
-          Custom
-        </button>
-      </div>
-    </section>
+    <!-- =========================
+         HEADER
+         ========================= -->
 
-    <section class="popup__section" id="custom-section" hidden>
-      <span class="popup__label">Custom colors</span>
-      <div class="custom-picker">
-        <label>Background <input type="color" id="custom-bg" /></label>
-        <label>Text <input type="color" id="custom-text" /></label>
-        <label>Accent <input type="color" id="custom-accent" /></label>
-      </div>
-      <button class="reset-link" id="reset-custom" type="button">Reset to default</button>
-    </section>
+    <section class="hero">
 
-    <footer class="popup__footer">
-      <span class="popup__footer-label">Feedback or need help?</span>
-      <div class="popup__links">
-        <a href="https://github.com/0xNotAyu" target="_blank" rel="noopener noreferrer" title="GitHub">
-          GitHub
-        </a>
-        <a href="https://instagram.com/REPLACE_ME" target="_blank" rel="noopener noreferrer" title="Instagram">
-          Instagram
-        </a>
-      </div>
-      <span class="popup__version">v0.1.0</span>
-    </footer>
+  <div class="hero__icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M21 3L3 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
   </div>
+
+  <h1 class="hero__title">AyuDark</h1>
+
+  <p class="hero__subtitle">
+    A dark theme for Medium
+  </p>
+
+  <span class="hero__version">v0.1.0</span>
+
+</section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- =========================
+         MODE
+         ========================= -->
+
+    <section class="section">
+
+      <span class="section__label">Mode</span>
+
+      <div
+        class="segmented"
+        id="mode-control"
+        role="group"
+        aria-label="Dark mode"
+      >
+
+        <button class="segmented__option" data-mode="system" type="button">
+          System
+        </button>
+
+        <button class="segmented__option" data-mode="off" type="button">
+          Off
+        </button>
+
+        <button class="segmented__option" data-mode="on" type="button">
+          On
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <div class="divider"></div>
+
+
+    <!-- =========================
+         REQUEST THEME
+         ========================= -->
+
+    <a
+      class="action"
+      href="https://instagram.com/0xNotAyu"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+
+      <span class="action__text">
+        <span class="action__title">Request a theme</span>
+        <span class="action__desc">Got an idea? Send it my way</span>
+      </span>
+
+      <span class="action__button" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M7 17L17 7M17 7H8M17 7V16"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </span>
+
+    </a>
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer class="footer">
+
+      <p class="footer__credit">
+        Made with care <span aria-hidden="true">💜</span> by <strong>Aayush Sharma</strong>
+      </p>
+
+      <div class="footer__links">
+        <a href="https://instagram.com/0xNotAyu" target="_blank" rel="noopener noreferrer">Instagram</a>
+        <span class="footer__separator">·</span>
+        <a href="https://github.com/0xNotAyu" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+
+    </footer>
+
+  </main>
+
   <script src="popup.js"></script>
 </body>
 </html>

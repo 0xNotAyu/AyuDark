@@ -152,6 +152,15 @@ function buildStylesheet(tokens: MediumTokens): string {
       color: var(--color-border-neutral-primary) !important;
     }
 
+    /* .js-labelBar: the vertical indicator bar that runs down the left
+       margin next to paragraphs/highlights while editing. Its
+       .u-borderRightLighter class hardcodes a light-gray right border,
+       same as the other u- utility classes above — re-themed the same
+       way via a plain override. */
+    html.${EDITOR_CLASS} .js-labelBar {
+      border-right-color: var(--color-border-neutral-primary) !important;
+    }
+
     html.${EDITOR_CLASS} .postArticle-content,
     html.${EDITOR_CLASS} .section-content {
       background: transparent !important;
