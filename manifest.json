@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "ayuDark — Medium Dark Mode",
+  "name": "AyuDark — Medium Dark Mode",
   "version": "0.1.0",
   "description": "A proper dark mode for every page of Medium — feed, articles, editor, profile, settings, and more.",
   "permissions": ["storage"],
