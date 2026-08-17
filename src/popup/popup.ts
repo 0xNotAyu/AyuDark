@@ -42,6 +42,12 @@ async function init() {
       settings.mode = btn.dataset.mode as Mode;
       renderMode(settings.mode);
       await setSettings(settings);
+      // A live-applied mode switch (System/Off/On) can leave stray state
+      // behind — inline-forced editor backgrounds, divider-dot overlays,
+      // observers still watching a route that's no longer relevant — so a
+      // full reload of the active tab guarantees a clean re-render instead
+      // of trying to enumerate every teardown path.
+      chrome.tabs.reload();
     });
   });
 
